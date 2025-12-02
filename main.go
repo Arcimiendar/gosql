@@ -14,8 +14,9 @@ func main() {
 	// Create a Gin router with default middleware (logger and recovery)
 	r := gin.Default()
 
-	bind, port, dslPath, err := config.ParseArgs()
+	bind, port, dslPath, dbUri, err := config.ParseArgs()
 
+	fmt.Printf("%v", dbUri)
 	if err != nil {
 		println("Error: " + err.Error())
 		return
