@@ -5,9 +5,10 @@ services:
       context: .
     ports:
       - "8080:8080"
+    command: ./gosql
     environment:
-      - DB_URI=postgresql://test:01234@postgres:5432/test
-      - BIND=0.0.0.0
+      BIND: 0.0.0.0
+      DSL_PATH: ./test_dsl
     volumes:
       - ./test_dsl:/DSL
   

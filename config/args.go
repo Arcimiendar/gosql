@@ -1,12 +1,32 @@
 package config
 
-import "github.com/namsral/flag"
+import (
+	"strconv"
+
+	"github.com/namsral/flag"
+)
 import "os"
 
 func ParseArgs() (bind string, port int, dslPath string, err error) {
-	flag.IntVar(&port, "port", 8080, "Port to listen on")
-	flag.StringVar(&bind, "bind", "127.0.0.1", "Address to listen on")
-	flag.StringVar(&dslPath, "dsl_path", "/DSL", "Path to DSL folder")
+	bind = os.Getenv("BIND")
+	if len(bind) == 0 {
+		bind = "127.0.0.1"
+	}
+
+	port, err = strconv.Atoi(os.Getenv("PORT"))
+	if err != nil {
+		port = 8080
+	}
+	err = nil
+
+	dslPath = os.Getenv("DSL_PATH")
+	if len(dslPath) == 0 {
+		dslPath = "/DSL"
+	}
+
+	flag.IntVar(&port, "port", port, "Port to listen on")
+	flag.StringVar(&bind, "bind", bind, "Address to listen on")
+	flag.StringVar(&dslPath, "dsl_path", dslPath, "Path to DSL folder")
 	flag.Parse()
 
 	if info, err := os.Stat(dslPath); err != nil || !info.IsDir() {
