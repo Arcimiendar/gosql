@@ -9,29 +9,54 @@ import (
 import "os"
 
 func ParseArgs() (bind string, port int, dslPath string, dbUri string, err error) {
-	bind = os.Getenv("BIND")
-	if len(bind) == 0 {
-		bind = "127.0.0.1"
+	defBind, defPort, defDslPath, defDbUri := "127.0.0.1", 8080, ".", ""
+
+	envBind := os.Getenv("BIND")
+	if envBind == "" {
+		envBind = defBind
 	}
 
-	port, err = strconv.Atoi(os.Getenv("PORT"))
-	if err != nil {
-		port = 8080
-	}
-	err = nil
-
-	dslPath = os.Getenv("DSL_PATH")
-	if len(dslPath) == 0 {
-		dslPath = "/DSL"
+	envPort, envErr := strconv.Atoi(os.Getenv("PORT"))
+	if envErr != nil {
+		envPort = defPort
 	}
 
-	dbUri = os.Getenv("DB_URI")
+	envDslPath := os.Getenv("DSL_PATH")
+	if envDslPath == "" {
+		envDslPath = defDslPath
+	}
+	envDbUri := os.Getenv("DB_URI")
+	if envDbUri == "" {
+		envDbUri = defDbUri
+	}
 
-	flag.IntVar(&port, "port", port, "Port to listen on")
-	flag.StringVar(&bind, "bind", bind, "Address to listen on")
-	flag.StringVar(&dslPath, "dslpath", dslPath, "Path to DSL folder")
-	flag.StringVar(&dbUri, "dburi", dbUri, "DB URI")
+	var portString string
+
+	flag.StringVar(&portString, "port", "", "Port to listen on")
+	flag.StringVar(&bind, "bind", "", "Address to listen on")
+	flag.StringVar(&dslPath, "dslpath", "", "Path to DSL folder")
+	flag.StringVar(&dbUri, "dburi", "", "DB URI")
 	flag.Parse()
+
+	if portString != "" {
+		port, err = strconv.Atoi(portString)
+		if err != nil {
+			err = nil
+			port = 8080
+		}
+	} else {
+		port = envPort
+	}
+
+	if dslPath == "" {
+		dslPath = envDslPath
+	}
+	if dbUri == "" {
+		dbUri = envDbUri
+	}
+	if bind == "" {
+		bind = envBind
+	}
 
 	if info, err := os.Stat(dslPath); err != nil || !info.IsDir() {
 		return "", 0, "", "", err
